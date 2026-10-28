@@ -86,21 +86,52 @@ env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u al
 子模块初始化和依赖安装会下载文件，应先检查本地缓存及下载预算。GitHub、模型源和 MiMo 等
 非 GPT 服务应直连，网络命令需移除继承的代理变量；OpenAI 请求仅在启动它的 CLI 子进程中使用代理。
 
-**克隆仅获得代码，不包含模型权重、数据或已训练 Probe。** 以下资源均被 `.gitignore` 排除：
+**数据通过 GitHub Release 单独分发；模型权重和已训练 Probe 不上传。**
+以下目录仍被 `.gitignore` 排除，克隆后按下一节下载并解压所需数据：
 
 | 本地路径 | 内容与前置条件 |
 | --- | --- |
 | `models/Qwen3-0.6B/`、`models/Qwen3-8B/` | 生成模型的本地完整权重与 tokenizer；两份原始下载约 17.9 GB |
 | `data/bipia/` | Email/table/code 的 train/test JSONL，以及 `text_attack_train.json`、`text_attack_test.json` |
+| `data/mentor_ipi_v1/` | mentor 提供的 24,964 条 AgentDrift/AgentDojo/InjecAgent 轨迹及原始说明、许可证 |
 | `artifacts/text_probe_v2/frozen/records.jsonl` | 本次实验冻结后的块级输入及监督标签，用于复现已有训练 |
 | `artifacts/text_probe_v2/model*/` | adapter、分类头、tokenizer 和阈值配置；运行已训练 Probe 时需要 |
 | `data/official/` 及原生基准的本地数据目录 | 完整原生基准测试所需的任务、答案和测试用例 |
 
-协作者需要从项目维护者取得相应本地资源，或按固定来源重新准备；源码快照不等于完整基准数据。
+模型权重及已训练 Probe 需另行取得；源码快照不等于完整基准数据。
 原始生成模型 revision 分别为 `c1899de289a04d12100db370d81485cdf75e47ca`（0.6B）和
 `b968826d9c46dd6066d109eabc6255188de91218`（8B）。BIPIA 使用
 `microsoft/BIPIA@a004b69ec0dd446e0afd461d98cb5e96e120a5d0`。
 模型加载均为本地读取，不会自动补下载。密钥保存在仓库外，不写入代码或提交。
+
+## 下载训练和评测数据
+
+固定数据版本：[data-v1-20261028](https://github.com/junnie00/qwen3-safety-probe/releases/tag/data-v1-20261028)。
+下载前按用途选择数据包，并检查本地是否已有相同文件；当前服务器已有完整本地副本，无需重复下载。
+下表大小为压缩包的十进制 MB，精确字节数、SHA-256 和包内逐文件清单见 [DATASETS.json](DATASETS.json)。
+
+| 数据包 | 下载大小 | 内容与用途 |
+| --- | ---: | --- |
+| [mentor-ipi-v1.tar.gz](https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/mentor-ipi-v1.tar.gz) | 23.38 MB | 新数据及来源/许可证；解压到 `data/mentor_ipi_v1/` |
+| [bipia-probe-v2-training.tar.gz](https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/bipia-probe-v2-training.tar.gz) | 3.60 MB | BIPIA 原始文件、规范 split、当前 Probe v2 冻结训练/验证/测试记录、标注及实际生成案例 |
+| [official-benchmark-data.tar.gz](https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/official-benchmark-data.tar.gz) | 94.44 MB | 现有 BFCL 任务/答案、LCB v6 增量 175 题及原生基准清单；不改变已声明的评测覆盖范围 |
+
+同时下载 Release 中的 [SHA256SUMS](https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/SHA256SUMS)。
+将所选压缩包及校验文件放到仓库根目录，先校验，再解压。例如复现当前 Probe 训练只需第二个数据包：
+
+```bash
+sha256sum --check --ignore-missing SHA256SUMS
+tar -xzf bipia-probe-v2-training.tar.gz
+```
+
+其他数据包用相同方式解压，包内路径会恢复到代码默认读取的位置。解压会写入同名本地文件，
+已有修改或新实验时先保留自己的副本。下载脚本若使用 HTTP 客户端，应直连 GitHub 并禁用继承的代理设置。
+冻结训练数据已包含 train/val/test 划分，不能将三者拼成训练集。
+
+mentor 数据是其他模型或合成轨迹的完整轨迹二分类标签，**没有直接合并进当前 Qwen3 A/B/C 训练集**。
+AgentDrift 应优先使用其 `taskdisjoint_split`；AgentDojo 中 7,666 条记录与计划评测的 AgentLAB
+任务标识重叠；InjecAgent 的 `standard_system` 和 `vulnerable_collection_system` 条件需分别处理。
+保留各数据包内的 NOTICE、LICENSE 和来源清单，完整轨迹标签不能直接作为当前块的三分类标签。
 
 ## 先验证代码，再准备真实实验
 
@@ -171,7 +202,7 @@ HF_HUB_OFFLINE=1 python -m baseline.run_text_speculative \
 这个示例只验证链路，不复现第二版测试成绩。GPU 编号需按空闲设备选择；已完成真实实验采用两张 L20，
 draft 与 Probe 共用一张、target 使用另一张，未声明最低显存或生产吞吐保证。
 
-截至 2026-10-28，已有实验记录的主要结果如下；原始 `artifacts/` 未随代码上传：
+截至 2026-10-28，已有实验记录的主要结果如下；训练输入及标注见上述 Release，模型权重和完整运行产物未上传：
 
 | 范围 | 已有结果及边界 |
 | --- | --- |
@@ -191,7 +222,7 @@ MiMo 自然语言标签仍需人工审计；BIPIA 探索实验不替代三套原
 
 从 `main` 创建功能分支，通过 Pull Request 合并；说明改动目的、验证方式及使用的数据/模型版本。
 修改输入或采集逻辑时检查来源分离和当前 target 不泄漏；修改解码时检查输出一致性与发布前拦截。
-不得在测试集上调整阈值。大数据、权重、实验产物和凭据继续留在 Git 之外，跨机器共享时保留版本与哈希。
+不得在测试集上调整阈值。数据包通过 Release 分发，权重、实验产物和凭据继续留在 Git 之外，跨机器共享时保留版本与哈希。
 
 <details>
 <summary>历史记录：早期隐状态 MLP、BIPIA 试跑与文本导出（以下“当前”均指当时版本）</summary>

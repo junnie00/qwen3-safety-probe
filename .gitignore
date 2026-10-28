@@ -3,6 +3,9 @@ __pycache__/
 artifacts/
 models/
 data/
+/data.zip
+/*.tar.gz
+/SHA256SUMS
 
 # Local environments and credentials
 .venv/

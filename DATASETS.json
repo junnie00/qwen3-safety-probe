@@ -1,0 +1,576 @@
+{
+  "schema": 1,
+  "release_tag": "data-v1-20261028",
+  "repository": "junnie00/qwen3-safety-probe",
+  "weights_included": false,
+  "mentor_data_merged_into_three_class_training": false,
+  "archives": [
+    {
+      "name": "mentor-ipi-v1.tar.gz",
+      "url": "https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/mentor-ipi-v1.tar.gz",
+      "bytes": 23381293,
+      "unpacked_bytes": 148116447,
+      "sha256": "c0e35588b1ebf4d0286e8407fd8e0d392eb9813cb401f2ad7b86ae23aeb1f686",
+      "files": [
+        {
+          "path": "data/mentor_ipi_v1/LICENSE-AgentDrift.txt",
+          "bytes": 18658,
+          "sha256": "f5b745ef98087f531e719ee8ca6a96809444573ecc7173c6fa68eaad39b3cc3f"
+        },
+        {
+          "path": "data/mentor_ipi_v1/NOTICE.md",
+          "bytes": 3634,
+          "sha256": "93b6ec6a76179f9d721b89bd450e3cb75caf5883c9cc90a1dc56bba78cf1b9a6"
+        },
+        {
+          "path": "data/mentor_ipi_v1/README.md",
+          "bytes": 13822,
+          "sha256": "6a037e8e1860363be067b4c9ab41b7464859d286cedf520d8c19d811d3284381"
+        },
+        {
+          "path": "data/mentor_ipi_v1/agentdojo.jsonl",
+          "bytes": 70656150,
+          "sha256": "b4f68fc0384fe00dc7b9ab13ba1e86ee4b310e9262ccf53524eaf5caaaa61cd0"
+        },
+        {
+          "path": "data/mentor_ipi_v1/agentdrift.jsonl",
+          "bytes": 62963971,
+          "sha256": "8374a531a758b31c7e715c594611dd0d7a0354f6472893ae1db7446487a09cac"
+        },
+        {
+          "path": "data/mentor_ipi_v1/injecagent.LICENSE.txt",
+          "bytes": 1066,
+          "sha256": "b48589499dbb84caa796b00b4ea652b0443e49660282c44d890fd473b8c0674e"
+        },
+        {
+          "path": "data/mentor_ipi_v1/injecagent.jsonl",
+          "bytes": 14398233,
+          "sha256": "e72b17230c30ddbfda5e064a825820a0ddeab115e36914dc9848c62c528ae867"
+        },
+        {
+          "path": "data/mentor_ipi_v1/injecagent.manifest.json",
+          "bytes": 42843,
+          "sha256": "0448bf240fdf2ee26dc906bcbd0292d83a620de92d5ad44dd3d943074023ee8c"
+        },
+        {
+          "path": "data/mentor_ipi_v1/injecagent.schema.json",
+          "bytes": 9150,
+          "sha256": "ba42179adf0eb602991a2d3c97fd396fa81cc4be215bfa1c5b7d2519276f0461"
+        },
+        {
+          "path": "data/mentor_ipi_v1/manifest.json",
+          "bytes": 4182,
+          "sha256": "a8c7ee36d253a1b1f7d7639846b9149a1eebb1baec598759fcf8be4c00ecfc19"
+        },
+        {
+          "path": "data/mentor_ipi_v1/schema.json",
+          "bytes": 3992,
+          "sha256": "b81c8c5f58eeb6dae2bdbff6b9ddb69558958eef29dfe710e5c4ffc340f90299"
+        },
+        {
+          "path": "data/mentor_ipi_v1/validation_report.json",
+          "bytes": 746,
+          "sha256": "64d05d9898d3239277839e5d3afbd60525dd7157da43c6fd7337ed29fa32ba43"
+        }
+      ]
+    },
+    {
+      "name": "bipia-probe-v2-training.tar.gz",
+      "url": "https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/bipia-probe-v2-training.tar.gz",
+      "bytes": 3598304,
+      "unpacked_bytes": 130396262,
+      "sha256": "37ae9c2e72b6200f1d2fe3fb939a8a905c3e95d5dae7b5bc1915567f9b4ce6b3",
+      "files": [
+        {
+          "path": "artifacts/bipia_email_end/cases.jsonl",
+          "bytes": 13206755,
+          "sha256": "a7775a846ca35224bd1d3075014092ff09e37cbfdc7a67dc55a1e5522d635d0c"
+        },
+        {
+          "path": "artifacts/text_probe_v2/cases.jsonl",
+          "bytes": 6875595,
+          "sha256": "5357e136f962d2510a339bf2b09f4b64b37bbf96f92095e3be962924f5093565"
+        },
+        {
+          "path": "artifacts/text_probe_v2/data_quality_summary.json",
+          "bytes": 1465,
+          "sha256": "5d778cf62fb59f15b2fe1c698b267b9e1c9b9aeb740d978cd9d2367e772070f3"
+        },
+        {
+          "path": "artifacts/text_probe_v2/frozen/labels.json",
+          "bytes": 11416,
+          "sha256": "97ded8bb146cf974bb8fd067989c305e2bfbdb0ab9450edb02cc7ca26daa0b83"
+        },
+        {
+          "path": "artifacts/text_probe_v2/frozen/records.jsonl",
+          "bytes": 91684051,
+          "sha256": "c5128ddc7403be5f3900d1f0c44035216bf5772f3670a71d4e6e26701ea5c69e"
+        },
+        {
+          "path": "artifacts/text_probe_v2/frozen/resolved_cases.jsonl",
+          "bytes": 8811691,
+          "sha256": "826c62ef67bdb9bcfc1689aaa0ed458470d94224f6b2770aaefa575c6cc95420"
+        },
+        {
+          "path": "artifacts/text_probe_v2/frozen/source_manifest.json",
+          "bytes": 659,
+          "sha256": "ca7850ca3d6857277cb724bd8bb7cc221f549d3c076d05489a3959d83e84a46e"
+        },
+        {
+          "path": "artifacts/text_probe_v2/labeled/api_labels.jsonl",
+          "bytes": 7335813,
+          "sha256": "66a2e0945767ddf0af77025e39fd2bbc5f7a45f200f30eee576d2449397f06fa"
+        },
+        {
+          "path": "artifacts/text_probe_v2/runtime_cases.jsonl",
+          "bytes": 343156,
+          "sha256": "7f5843744d10b00426f4688890133b67943096cffede6e0e250e96623b2ac34d"
+        },
+        {
+          "path": "artifacts/text_probe_v2/runtime_group_selection.json",
+          "bytes": 478,
+          "sha256": "9ad17a7cc6364e074d3c21a67531f0a99d22a2860f5954df3a2cf27eb2deeb1e"
+        },
+        {
+          "path": "data/bipia/additional_source.json",
+          "bytes": 1440,
+          "sha256": "140b527c4f570c2ef24cb1980c8318748985720ce127b325626e018e79913d56"
+        },
+        {
+          "path": "data/bipia/code_test.jsonl",
+          "bytes": 100451,
+          "sha256": "ed40b84f541352fb45753032a80750922de8d5e0b70997924df3d04cf942e058"
+        },
+        {
+          "path": "data/bipia/code_train.jsonl",
+          "bytes": 125926,
+          "sha256": "5e6879b621a5cefe265a5b41b7ed0be632536f658f6097baf85a28b9abcb3115"
+        },
+        {
+          "path": "data/bipia/email_test.jsonl",
+          "bytes": 30334,
+          "sha256": "217b403faaa1d0cb12c24892bea39f4a0b9e2819919ac7e2b902006e28278cdb"
+        },
+        {
+          "path": "data/bipia/email_train.jsonl",
+          "bytes": 31586,
+          "sha256": "82207193cb8ce06713eeb7c33ca0716446613512e2ad9303b302ba14d425ddd4"
+        },
+        {
+          "path": "data/bipia/source.json",
+          "bytes": 1342,
+          "sha256": "017c7f2f0ee1766f717d58530bb14ce2a8783a3e9786e1d615097f21ae6e3979"
+        },
+        {
+          "path": "data/bipia/table_test.jsonl",
+          "bytes": 183302,
+          "sha256": "3d5eaab192b80bada762e3cd7655583a14e5888ba8b845a01f0434e4ccc4291e"
+        },
+        {
+          "path": "data/bipia/table_train.jsonl",
+          "bytes": 1638481,
+          "sha256": "ae1c3ff25733fb3ff1a35bda3009716f4d25a17ae6833c73521be0411d576494"
+        },
+        {
+          "path": "data/bipia/text_attack_test.json",
+          "bytes": 6322,
+          "sha256": "75750e7b4e8b34e8f9d88d89b357aeaaf02bd07f9e493ccd37eda74a0cd7c7f8"
+        },
+        {
+          "path": "data/bipia/text_attack_train.json",
+          "bytes": 5999,
+          "sha256": "63f95d3e67eac4178cdabdbdaf192cd05f2b6ed0702b578f1d30d556e5155670"
+        }
+      ]
+    },
+    {
+      "name": "official-benchmark-data.tar.gz",
+      "url": "https://github.com/junnie00/qwen3-safety-probe/releases/download/data-v1-20261028/official-benchmark-data.tar.gz",
+      "bytes": 94444113,
+      "unpacked_bytes": 147173205,
+      "sha256": "64a2fc83195827a5f8d5433593dc733c7cf573921d758c92c5b8b5e1fd0f9782",
+      "files": [
+        {
+          "path": "artifacts/official_benchmarks/full_plan/selection.json",
+          "bytes": 433609,
+          "sha256": "367b8f88ea71d53035bc599a76e09dbf8b7c5d028f371d16053363cd9b747fbb"
+        },
+        {
+          "path": "artifacts/official_benchmarks/pilot/selection.json",
+          "bytes": 585,
+          "sha256": "0f7f413843b784e587ec1e74868e9fbda98a8ac98332ace8a5b9b48e6b149251"
+        },
+        {
+          "path": "artifacts/official_benchmarks/planner_source_manifest.json",
+          "bytes": 1525,
+          "sha256": "447bcbc46c08e0797f28dd8b56842a415d9e444c59a72a3f03e18e395b0e88b4"
+        },
+        {
+          "path": "artifacts/official_benchmarks/source_manifest.json",
+          "bytes": 137243,
+          "sha256": "3953d78c9f57e5a4c0cce137ea9872d152a83d15ce33796cbf47d192095b3966"
+        },
+        {
+          "path": "data/official/LiveCodeBench/v6/test6.jsonl",
+          "bytes": 134303240,
+          "sha256": "bb4c364f71921c4495a6ad15abe1a927350b720009f4933e2e71f8af0f6fd1f5"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_format_sensitivity.json",
+          "bytes": 4963,
+          "sha256": "1e7ebd0ec441198d3f7d3b60be73d0c9eba54094d2c3731b830f5da7a2c63c19"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_irrelevance.json",
+          "bytes": 159940,
+          "sha256": "2b6ed4c2e992cdcf5f1678a701851f944bef7550ee026ed1ddb89efed5be01a6"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_live_irrelevance.json",
+          "bytes": 2209534,
+          "sha256": "6559fda2beaceb609a2cd2e504c65b4a56cb448e1ef88fddfd199e163d163349"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_live_multiple.json",
+          "bytes": 3891277,
+          "sha256": "fd8ccfad4d911420d0e3341dbe2fff77d1d341da934248b9bb2bda24ab3a10c8"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_live_parallel.json",
+          "bytes": 15649,
+          "sha256": "6c26e9fdc3350cf596e6d1ea9c179cbff834761bccf562f4141ed29a839ca421"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_live_parallel_multiple.json",
+          "bytes": 82332,
+          "sha256": "21d4b9319c1faac431e22757b367ea28917fe467364c3a4b17f16ec06d4f6e79"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_live_relevance.json",
+          "bytes": 47327,
+          "sha256": "e03f9e241657a137cba48a89ee12f47bf3fcb7e4f6274263e9c699a0c974203a"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_live_simple.json",
+          "bytes": 260140,
+          "sha256": "1af2ac87dca47556db7b7e37e51e28b459a38b594e3c7b3c792b4903598ca0c4"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_memory.json",
+          "bytes": 33237,
+          "sha256": "40fc21d4528af53c6b44204def89e81515d0101654229e2c2e82bbf5f047b14f"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_multi_turn_base.json",
+          "bytes": 390425,
+          "sha256": "1a21a995d06fd6f20ba55de7bced30ef953ec35e998f502ec2ecf4d66ef1c43a"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_multi_turn_long_context.json",
+          "bytes": 392016,
+          "sha256": "78c3268c5cc8e97c0f4ec6c811b3b9a2bba14323b1830b7a874b06d822749324"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_multi_turn_miss_func.json",
+          "bytes": 401159,
+          "sha256": "87d28ce10e37d864b72de85d5732eef2a867b241d6c1c99b4ae682c9e3ea921c"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_multi_turn_miss_param.json",
+          "bytes": 402974,
+          "sha256": "f0c66dda3795f5f53e3e1c0cc8ba0246b6761c8f58bdba8317203bf451ab8838"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_multiple.json",
+          "bytes": 316583,
+          "sha256": "aef168155ebd74b7ac2401198b201343bc7d16d7a3d7e0d4e6d8ee82c6969b2a"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_parallel.json",
+          "bytes": 171896,
+          "sha256": "19f51a82eff42e5d62541aa500115a056eb78f437c2ba1f10415fd7c8e5dda84"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_parallel_multiple.json",
+          "bytes": 347080,
+          "sha256": "8863ea8433239f55c5f016154cf0830853c89f693c6ea270396a2fa121960579"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_simple_java.json",
+          "bytes": 86619,
+          "sha256": "13d2303a125b08754f0e41995b9273b5005fa8ed8ebfaa24ef53b4d83c4b5c6e"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_simple_javascript.json",
+          "bytes": 47063,
+          "sha256": "329e67fedf79a6243d93dbda4b388d12bd2d31f1f2163d92cb6ef676d1764f44"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_simple_python.json",
+          "bytes": 283274,
+          "sha256": "82dd63ba502eb2520c6b5d1d9a5c4b590e03ff261565175561f6228a367d1991"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/BFCL_v4_web_search.json",
+          "bytes": 36984,
+          "sha256": "6fc41d96d003dc849028966a782923560d2fc127ed2088aa967f06daaafa4268"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/README.md",
+          "bytes": 20277,
+          "sha256": "93119d83df28fee0a9f3ea41b0c6a947aad9f7ba4334ae89fef41c74b67b208d"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/memory_prereq_conversation/memory_customer.json",
+          "bytes": 74686,
+          "sha256": "806ac91e558e3d933e526ecc0c286e417657f76a3c9b9073eef830a532eb4eb2"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/memory_prereq_conversation/memory_finance.json",
+          "bytes": 32819,
+          "sha256": "3cef1f235667f479b8f45c7082247454b2129ee88fe4fbcdbc53fd2cdf495b75"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/memory_prereq_conversation/memory_healthcare.json",
+          "bytes": 25116,
+          "sha256": "56e7bd7b2e7c01efe81f1e0be85149ea3886bb2d9cb59f90e9d9e27b91f4604d"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/memory_prereq_conversation/memory_notetaker.json",
+          "bytes": 5251,
+          "sha256": "07f3239ef2e9e1421901f05d3c8192469fa129324e124a47bcb35ff9c7785c91"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/memory_prereq_conversation/memory_student.json",
+          "bytes": 97092,
+          "sha256": "e2d6c32e9e2671c61f682e845dcdafd9eee7c9f3e2d5da1615d3afd2aeecf2f0"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/gorilla_file_system.json",
+          "bytes": 13953,
+          "sha256": "c4c1b741c71e2a17c97a5dc9c4a91d89978c4eaece56494d14272d5df6c650e9"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/math_api.json",
+          "bytes": 9158,
+          "sha256": "83fa31708c89442bdcf12ac4dfbe3be8663ec9183a1b1524a9fda98164bc7e0b"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/memory_kv.json",
+          "bytes": 9087,
+          "sha256": "96480cd9cbd3d4a34cd8f78879bc6622731768a26e080f7a34782e36e3402287"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/memory_rec_sum.json",
+          "bytes": 2501,
+          "sha256": "4ceff946df00983c7f0b95d1b70ae402247f3312fb898bac9ecfa1de52f5a783"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/memory_vector.json",
+          "bytes": 7287,
+          "sha256": "917908ca99fdd01e203274b7ec6eb2347fa91d57f3c6341e20945cc9c9d746cf"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/message_api.json",
+          "bytes": 6027,
+          "sha256": "4d58ea933a5d2b280d7a52366617fb47fecd333d7b0e08e724db6fa12fb5f847"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/posting_api.json",
+          "bytes": 10573,
+          "sha256": "87f9fc404a06e4107d7c366f1399c596440e84c16cb119faf374b2f532d86e8b"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/ticket_api.json",
+          "bytes": 6648,
+          "sha256": "31324e0380782664fe82ba05bd23517808ad55692b45a5fe7c3d4d395fe4f0f8"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/trading_bot.json",
+          "bytes": 12608,
+          "sha256": "1a7933fd8f0cb8fbec38aeae05cb8c24132747cad4904fe1c13ac3d01fc22c2d"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/travel_booking.json",
+          "bytes": 16979,
+          "sha256": "f17b950c13adddf41d0848077df58788252e4c2e7cad5cfa71c8c4bf04f57b26"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/vehicle_control.json",
+          "bytes": 17545,
+          "sha256": "0c8a66292844874ef7b168f343bc394d8615d2d9e1f4387999a9ee23011eac78"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/multi_turn_func_doc/web_search.json",
+          "bytes": 2252,
+          "sha256": "61fcee411e35f7ff67415e18cd67276615cf06e1c8841a683d2d997dbb46eac5"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_live_multiple.json",
+          "bytes": 199668,
+          "sha256": "97e90d59c5bd76c55a2920ce93e5566e9046307d3f558578f085f9d3a56c3084"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_live_parallel.json",
+          "bytes": 4972,
+          "sha256": "8a9f189ff0e832ebbbbdade1fd95a7dbcc67406e9177df3f0aad76f59ab00350"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_live_parallel_multiple.json",
+          "bytes": 7420,
+          "sha256": "f5b5f360556c5feb51db46fb9f56ee4b304f4b45b161599bbb14161c98a2873f"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_live_simple.json",
+          "bytes": 46972,
+          "sha256": "fec9cfa9744a936f9126981e85a2023da1e63e273eafebc81923a1162fad70ce"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_memory.json",
+          "bytes": 28325,
+          "sha256": "2355cf8d842f94af6bcb7bfa6ad2f9e472bc6d825d6ecd45702cfc41e27d7e5d"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_base.json",
+          "bytes": 78931,
+          "sha256": "1fee67823b317571649177dd89d63969feaae4e810cc7448ee55ba797fb7c8fc"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_long_context.json",
+          "bytes": 114439,
+          "sha256": "e82aa0e839c39d23c64a05834f7ae024d7c9738ec21738ecee78dc876e3d0d18"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_miss_func.json",
+          "bytes": 80589,
+          "sha256": "69e679b806d1c871b05393a4b95583bb973248e5b8d96c2d7f4ca05e29fc32e6"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_miss_param.json",
+          "bytes": 80816,
+          "sha256": "59c442901779e2c31c33abcd566d032e03736e5ad8069de2fe05489873046ecf"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_multiple.json",
+          "bytes": 32254,
+          "sha256": "244e00ce9395df948bcafc7bee64e8f9c87ef70887587d83cae45b13699f3047"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_parallel.json",
+          "bytes": 66005,
+          "sha256": "8a6aa19c1adddc6a5a2f7e40f9dbf30cc7e95815e7b830c90589ab318229e0f0"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_parallel_multiple.json",
+          "bytes": 74602,
+          "sha256": "5ebf24f458c1f16300c05505d83d6f0a1b68b79be273a033febd0d4f840507e3"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_simple_java.json",
+          "bytes": 16407,
+          "sha256": "78f25616084044fa05bbfcee68e03f6ececb222bdd5cb3b7783a675fb3366e35"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_simple_javascript.json",
+          "bytes": 7881,
+          "sha256": "e2f9f2e51d88e0c8056ffbf1a3dd3d02eb032532d2b5d98c9cc9003385bdd56b"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_simple_python.json",
+          "bytes": 63627,
+          "sha256": "90cd5bc653690ee8e459b5b3f3fc9458606f7f3fcbf795bb51b7dc581f8c86dc"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/possible_answer/BFCL_v4_web_search.json",
+          "bytes": 75962,
+          "sha256": "771cab45fdad5744563456801d4623a42c5a358f10514b9b9105d2f6052b4999"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/executable_eval_sanity_check/api_status_check_ground_truth_executable.json",
+          "bytes": 8681,
+          "sha256": "9009f32791e52dc238721a063fbfe6d78bdb5a6bd0234c898975472f5bb394e6"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/executable_eval_sanity_check/api_status_check_ground_truth_rest.json",
+          "bytes": 14052,
+          "sha256": "d791559ef5f097e7ab6b36dd79d32cfb0c03195060aedb7e7e0a490e6d2b724d"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_exec_multiple.json",
+          "bytes": 7232,
+          "sha256": "4d30c1642e7ff57bf29ca8a25bbad27b2a6612efea4ec03c0ba5a894ea6fd15c"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_exec_parallel.json",
+          "bytes": 16710,
+          "sha256": "896aa96eda0909780bc474a7887bc38c2025a5a7a90e194236d689c3a3e3d178"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_exec_parallel_multiple.json",
+          "bytes": 10666,
+          "sha256": "efe7c7bcaeda600ef2fb8a65841c8628226841d50408313c18e6450d0d5efca9"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_exec_simple.json",
+          "bytes": 14055,
+          "sha256": "4584017c92ae9a2407eac25bcec2496233a32a08182301b15f65538aa575b5a7"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_multi_turn_composite.json",
+          "bytes": 115938,
+          "sha256": "c832f27baaa589b15e1612c7f48d6de169b9cee4cce7ec6c32e78f20c4be6f25"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_rest.json",
+          "bytes": 113056,
+          "sha256": "8105057a7b4920da835901e1ccb8bb875fe4dc9d4cac2f6a8bd7c292d83be5b5"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/possible_answer/BFCL_v4_sql.json",
+          "bytes": 20541,
+          "sha256": "066ee73429e1d16e0a28ee7f9a7877f313892e94f6b68fb200b14253c8d7c154"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_chatable.json",
+          "bytes": 24980,
+          "sha256": "bb119651f897dceaba2936633a0048a2acdf040be5cf2fd26fcfea3a6d69031a"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_exec_multiple.json",
+          "bytes": 75924,
+          "sha256": "7dc1247bf337da33b8d72597c31de6f5e510736a89d7551dc898154f09363ced"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_exec_parallel.json",
+          "bytes": 40389,
+          "sha256": "f407d29d48c86a18966471a00456813b296ec479a7b38b6ffc371d3070ecd412"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_exec_parallel_multiple.json",
+          "bytes": 64362,
+          "sha256": "6009581d732fd5c7e8332b44f1a9b4ecd62e31bbfe7c283f828a1d1f23e30d1e"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_exec_simple.json",
+          "bytes": 75888,
+          "sha256": "32ee3959e8e3f92fac1e90e55bf5fa41c759bfef4e6a2d88421af527a859d0a4"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_multi_turn_composite.json",
+          "bytes": 404501,
+          "sha256": "1fda0310e176317af7184132ff5fb5daa8ee7984b1cfbf69ce4bfb58c3151ae1"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_rest.json",
+          "bytes": 208186,
+          "sha256": "b064f9eefc257dba383227177f570fd9038588dd058e5a9e869007f81d5cc5f2"
+        },
+        {
+          "path": "third_party/BFCL/bfcl_eval/data/unused_datasets/question/BFCL_v4_sql.json",
+          "bytes": 152641,
+          "sha256": "2cf021e2e4f81f1097aab31763423b785b3aaa73df8203a4f4ae3900822b0d53"
+        }
+      ]
+    }
+  ]
+}
