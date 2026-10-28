@@ -1,27 +1,202 @@
-# Qwen3 安全 Probe baseline
+# Qwen3 安全 Probe
 
-## Git 协作
+本项目研究：在投机解码过程中，让安全 Probe 与主模型验证草稿并行运行，
+在当前块发布前检测提示注入，并测量安全效果和实际时延开销。
 
-首次克隆使用 `git clone --recurse-submodules https://github.com/junnie00/qwen3-safety-probe.git`。
-已有克隆可用 `git submodule update --init --recursive` 补齐固定版本的 SafeSpec 和 kev 源码；
-这些命令会下载上游依赖，执行前请检查网络和下载预算。
-BFCL、LiveCodeBench 和 AgentLAB 的现有源码快照随本仓库保存。
+**当前开发版本是第二版独立文本 Probe：Qwen3-0.6B + LoRA + 线性三分类头。**
+草稿模型和主模型冻结。早期的隐状态 MLP 和首版文本指针头均保留作实验记录，
+不应与当前版本的架构、命令或结果混用。
 
-模型权重、`data/`、`artifacts/`、凭据及本地参考文档不纳入 Git。
-训练和完整评测需要另行准备本地模型、数据及文中所述实验文件，克隆代码不会包含这些资源。
-协作时从 `main` 创建功能分支，通过 Pull Request 合并，并按下文说明运行相应测试。
+## 当前模型架构
 
-**指南要求的三套正式评测入口**见 [OFFICIAL_BENCHMARKS.md](OFFICIAL_BENCHMARKS.md)：
-BFCL-v4、LiveCodeBench v6、AgentLAB Task-Injection，使用各自的原生任务和判分。
-已完成固定小子集的三次重复；AgentLAB 攻击项等待 GPT-5.1 凭据。
-此前 BIPIA 实验用于训练与探索，不能当作这三套基准的成绩。
+| 组件 | 模型与职责 | 是否训练 |
+| --- | --- | --- |
+| Draft | Qwen3-0.6B，生成候选 token 块，默认 K=4 | 冻结 |
+| Target | Qwen3-8B，验证、纠正草稿并产生 bonus token | 冻结 |
+| Probe | 独立 Qwen3-0.6B 骨干，末尾决策 token 的隐藏状态接 `Linear(1024, 3)` | 仅 LoRA 和分类头 |
 
-第二版的统一采集、可见前缀标注、扩充数据与单 token 分类头见 [TEXT_PROBE_V2.md](TEXT_PROBE_V2.md)。
+```text
+             冻结 Draft 0.6B 生成当前草稿
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+     冻结 Target 8B 验证          独立 Probe 0.6B 分类
+     读取任务上下文、已接受前缀     读取上下文、历史配对、当前草稿
+              │                           │
+              └─────────────┬─────────────┘
+                       等待两边结果
+                            │
+                      放行或丢弃当前块
+```
 
-新增的 **独立 Qwen3-0.6B 文本三分类 Probe** 见 [TEXT_PROBE.md](TEXT_PROBE.md)：
-输入包含来源明确的任务上下文、过去每块的完整草稿与实际 target 输出、当前草稿；
-当前 8B 输出只用于离线监督。该版本使用 LoRA、Kev 式选项指针头和带 KV cache 的标准投机采样。
-下文保留此前的隐状态 MLP 探索版本及其结果。
+Probe 的上下文保留真实 system/user/tool 来源与顺序；历史包含过去被拒绝的草稿、
+实际 target 输出和接受计数。**当前块 target 输出、标签和参考答案不进入 Probe 输入**，
+当前 target 输出仅用于离线监督。Probe 不生成判断文字，一次前向得到三个分类分数：
+
+| 类别 | 标签含义 |
+| --- | --- |
+| A | 当前 target 输出中招，包括草稿正常而 target 中招 |
+| B | 当前草稿中招，但 target 输出正常 |
+| C | 草稿和 target 输出均正常 |
+
+训练采用三分类交叉熵，LoRA `rank=16 / alpha=32 / dropout=0.05`，
+覆盖注意力的 q/k/v/o 投影及前馈的 gate/up/down 投影，约 1010 万可训练参数。
+训练集按类别均衡、有放回抽样；验证/测试不重采样。同一原始来源的变体不得跨 split。
+模型按验证交叉熵选择，拦截阈值只用验证集确定，测试不重新调参。
+
+在线解码使用 KV cache；Probe 复用公共输入前缀，并在加载时合并 LoRA。
+`silent` 只记录告警；`intercept` 在发布前丢弃触发块并停止当前任务，已发布内容或已执行操作不回滚。
+当前实验放行规则为：整块草稿被接受时 `risk=P(A)+P(B)`，否则 `risk=P(A)`。
+该规则由检查点配置中的 `verifier_fusion` 控制，不改变三分类训练目标。
+
+## 代码与文档入口
+
+| 入口 | 用途 |
+| --- | --- |
+| [TEXT_PROBE_V2.md](TEXT_PROBE_V2.md) | 当前版数据、标注、训练配置、结果及限制 |
+| [OFFICIAL_BENCHMARKS.md](OFFICIAL_BENCHMARKS.md) | BFCL-v4、LiveCodeBench v6、AgentLAB 原生评测的范围与命令 |
+| [TEXT_PROBE.md](TEXT_PROBE.md) | 首版文本 Probe，使用选项指针头；历史参考 |
+| [baseline/text_probe.py](baseline/text_probe.py) | 文本编码、LoRA、分类头、保存/加载及推理缓存 |
+| [baseline/text_data.py](baseline/text_data.py) | 因果输入格式和 A/B/C 标签定义 |
+| [baseline/train_text_probe.py](baseline/train_text_probe.py) | 当前训练、模型选择、阈值校准及固定子集测试 |
+| [baseline/speculative_cached.py](baseline/speculative_cached.py) | 带 KV cache 的投机解码、并行 Probe 及发布前拦截 |
+| [baseline/official/](baseline/official/) | 三套原生基准的适配与判分 |
+| [tests/](tests/) | 输入边界、解码、训练与评测回归测试 |
+
+## 克隆、环境和不随仓库分发的资源
+
+```bash
+git clone --recurse-submodules https://github.com/junnie00/qwen3-safety-probe.git
+cd qwen3-safety-probe
+```
+
+SafeSpec 和 kev 是固定提交的子模块；若克隆时未初始化，执行
+`git submodule update --init --recursive`。BFCL、LiveCodeBench 和 AgentLAB 的现有源码快照已提交。
+
+使用 Python 3.11；依赖见 `requirements-text-probe.txt`，其中固定
+Torch 2.9.x、Transformers 4.57.3 和 PEFT 0.17.1。已有合适环境可直接使用；新环境示例：
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy \
+  python -m pip install -r requirements-text-probe.txt
+```
+
+子模块初始化和依赖安装会下载文件，应先检查本地缓存及下载预算。GitHub、模型源和 MiMo 等
+非 GPT 服务应直连，网络命令需移除继承的代理变量；OpenAI 请求仅在启动它的 CLI 子进程中使用代理。
+
+**克隆仅获得代码，不包含模型权重、数据或已训练 Probe。** 以下资源均被 `.gitignore` 排除：
+
+| 本地路径 | 内容与前置条件 |
+| --- | --- |
+| `models/Qwen3-0.6B/`、`models/Qwen3-8B/` | 生成模型的本地完整权重与 tokenizer；两份原始下载约 17.9 GB |
+| `data/bipia/` | Email/table/code 的 train/test JSONL，以及 `text_attack_train.json`、`text_attack_test.json` |
+| `artifacts/text_probe_v2/frozen/records.jsonl` | 本次实验冻结后的块级输入及监督标签，用于复现已有训练 |
+| `artifacts/text_probe_v2/model*/` | adapter、分类头、tokenizer 和阈值配置；运行已训练 Probe 时需要 |
+| `data/official/` 及原生基准的本地数据目录 | 完整原生基准测试所需的任务、答案和测试用例 |
+
+协作者需要从项目维护者取得相应本地资源，或按固定来源重新准备；源码快照不等于完整基准数据。
+原始生成模型 revision 分别为 `c1899de289a04d12100db370d81485cdf75e47ca`（0.6B）和
+`b968826d9c46dd6066d109eabc6255188de91218`（8B）。BIPIA 使用
+`microsoft/BIPIA@a004b69ec0dd446e0afd461d98cb5e96e120a5d0`。
+模型加载均为本地读取，不会自动补下载。密钥保存在仓库外，不写入代码或提交。
+
+## 先验证代码，再准备真实实验
+
+安装依赖并初始化 SafeSpec 子模块后，下面两条命令无需真实模型、数据或 API 密钥，可在 CPU 上运行：
+
+```bash
+python -m baseline.smoke --output artifacts/smoke
+python -m pytest -q tests \
+  --ignore=tests/test_official_benchmarks.py --ignore=tests/test_text_v2.py
+```
+
+`smoke` 只验证旧 MLP 的合成训练/保存/评测流程；其成绩不是安全结果。
+其余测试包含当前文本 Probe、KV cache、三分类和发布前拦截，使用随机小模型或合成输入。
+`tests/test_text_v2.py` 中的部分标注检查还需 `data/bipia/text_attack_train.json` 和
+`text_attack_test.json`；`tests/test_official_benchmarks.py` 另需原生任务数据和依赖。
+这些资源齐备后运行 `python -m pytest -q tests`。
+上述不带资源的命令已在仅含源码与子模块文件的副本中验证：合成 smoke 成功，63 项测试通过。
+现有服务器完整环境已通过 89 项测试，新克隆不应在缺少原生基准资源时直接运行完整测试集。
+
+## 训练和评测当前文本 Probe
+
+若已取得冻结的 `records.jsonl` 与本地 0.6B 权重，可直接训练，无需运行 8B 或调用标注 API。
+使用新输出目录，避免覆盖已有实验；下面显式使用已完成实验的 batch size 8，脚本默认值为 2：
+
+```bash
+HF_HUB_OFFLINE=1 python -m baseline.train_text_probe \
+  --records artifacts/text_probe_v2/frozen/records.jsonl \
+  --base models/Qwen3-0.6B --output artifacts/my_probe \
+  --readout linear --rank 16 --batch-size 8 --epochs 2 --lr 1e-4 \
+  --max-train-tokens 4096 --device cuda:0
+
+HF_HUB_OFFLINE=1 python -m baseline.evaluate_text_probe \
+  --records artifacts/text_probe_v2/frozen/records.jsonl \
+  --checkpoint artifacts/my_probe \
+  --output artifacts/my_probe/classification_all_known.json --device cuda:0
+```
+
+训练保存 `adapter/`、`head.pt`、`tokenizer/`、`config.json`、`training.json` 和 `evaluation.json`。
+配置记录基础模型的绝对路径，跨机器迁移检查点后需将 `config.json` 的 `base` 改为本机模型路径。
+评测命令覆盖所有已知三分类测试点；任务级/及时 FNR 是不同统计口径，详见第二版文档。
+`model_fpr5_fused` 是已有权重的另一个阈值/放行配置，普通训练命令不会自动生成该目录。
+
+若需从头采集而非复用冻结记录，顺序为：
+
+1. 准备 BIPIA 本地文件；运行 `python -m baseline.prepare_bipia` 生成规范的邮件 split 清单。
+2. 运行 `python -m baseline.prepare_text_v2`；它依赖上一步的 `artifacts/bipia_email_end/cases.jsonl`。
+3. 使用两份真实生成模型运行 `python -m baseline.collect_text_v2`，保存完整草稿/target 轨迹。
+4. 使用 `python -m baseline.label_text_v2 --key-file /secure/path/mimo_key` 标注；API 调用会计费。
+   无密钥时只生成规则可确定的标签，自然语言未知标签仍为未知。
+5. 审核标注，冻结并记录文件哈希；将训练命令的 `--records` 指向冻结后的记录。
+   标注器输出默认为 `artifacts/text_probe_v2/labeled/records.jsonl`，不会自动生成历史实验的 `frozen/`。
+
+历史实验的 `artifacts/text_probe_v2/finish_experiment.py` 是未随 Git 分发的本机控制脚本，
+新克隆无需依赖它。采集和标注的参数、覆盖率及未知标签处理见 [TEXT_PROBE_V2.md](TEXT_PROBE_V2.md)。
+
+## 实际解码与当前结果
+
+准备好两份生成模型、已校准的 Probe 和 cases JSONL 后，例如使用已有格式示例验证链路：
+
+```bash
+HF_HUB_OFFLINE=1 python -m baseline.run_text_speculative \
+  --cases examples/email_cases.jsonl --probe-checkpoint artifacts/my_probe \
+  --output artifacts/my_probe_runtime --mode compare --repeats 3 \
+  --max-new-tokens 96 --draft-device cuda:0 --target-device cuda:1 --probe-device cuda:0
+```
+
+`compare` 配对运行无防护和静默模式；改用 `--mode intercept` 并指定另一输出目录可检查实际拦截。
+这个示例只验证链路，不复现第二版测试成绩。GPU 编号需按空闲设备选择；已完成真实实验采用两张 L20，
+draft 与 Probe 共用一张、target 使用另一张，未声明最低显存或生产吞吐保证。
+
+截至 2026-10-28，已有实验记录的主要结果如下；原始 `artifacts/` 未随代码上传：
+
+| 范围 | 已有结果及边界 |
+| --- | --- |
+| 第二版训练 | 4110 个有效训练点，A/B/C=234/83/3793；两轮中保存第一轮权重 |
+| 同批 1883 个三分类测试点 | A 判对 76/102，B 8/16，C 1739/1765 |
+| 固定 96 个任务，融合规则 | 35 个正例漏报 8 个，61 个负例误报 0 个；未及时告警 12/35 |
+| 45 个实际生成案例 | 融合后，12 个已知原本中招案例仍有 4 个发布了可确认的注入内容 |
+| 静默时延 | 配对输出 token 一致；平均时延增加约 19.86%，额外开销未消除 |
+| 三套原生基准 | 仅完成 BFCL 4 项、LCB 2 项、AgentLAB 正常任务 1 项的三次重复；AgentLAB 攻击项待 GPT-5.1 凭据 |
+
+**尚未达到 FNR <0.1%、FPR <5% 及零额外时延的验收目标。**
+MiMo 自然语言标签仍需人工审计；BIPIA 探索实验不替代三套原生基准成绩，重复运行也不增加独立任务数。
+详细分母、阈值与适用范围见 [TEXT_PROBE_V2.md](TEXT_PROBE_V2.md) 和
+[OFFICIAL_BENCHMARKS.md](OFFICIAL_BENCHMARKS.md)。
+
+## 协作约定
+
+从 `main` 创建功能分支，通过 Pull Request 合并；说明改动目的、验证方式及使用的数据/模型版本。
+修改输入或采集逻辑时检查来源分离和当前 target 不泄漏；修改解码时检查输出一致性与发布前拦截。
+不得在测试集上调整阈值。大数据、权重、实验产物和凭据继续留在 Git 之外，跨机器共享时保留版本与哈希。
+
+<details>
+<summary>历史记录：早期隐状态 MLP、BIPIA 试跑与文本导出（以下“当前”均指当时版本）</summary>
+
+下文仅保留旧实验说明。当前开发入口、带 KV cache 的文本 Probe 和原生基准状态以上文为准。
 
 ## 早期草稿特征 MLP 版本
 
@@ -324,3 +499,5 @@ CUDA_VISIBLE_DEVICES='' /data/ygzhang/miniconda3/envs/deploy/bin/python \
 当前隐状态 Probe 与草稿模型的表示空间绑定；文本输入可减少这一绑定，仍须验证跨模型泛化。
 特别是更换主模型时，同一草稿的接受与劫持结果可能改变，当前针对 8B 的标签不能直接视为
 所有主模型的通用真值。文本方案还需另测编码耗时是否能被验证窗口掩盖。
+
+</details>
