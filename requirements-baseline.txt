@@ -1,0 +1,4 @@
+torch>=2.5
+transformers>=4.51,<5
+numpy>=1.26
+pytest>=8

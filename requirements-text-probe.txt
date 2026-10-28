@@ -1,0 +1,5 @@
+-r requirements-baseline.txt
+torch>=2.9,<2.10
+transformers==4.57.3
+peft==0.17.1
+accelerate>=1.12,<2

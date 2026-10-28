@@ -1,0 +1,25 @@
+__pycache__/
+.pytest_cache/
+artifacts/
+models/
+data/
+
+# Local environments and credentials
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.safetensors
+*.pt
+*.pth
+
+# Runtime files and local reference documents
+.file_locks/
+/third_party/AgentLAB/Task-Injection/agentdojo/res/long_horizon/*/
+*.log
+/SafeSpec Fast and Safe LLM via Dynamic Reflective Sampling
+/*.docx

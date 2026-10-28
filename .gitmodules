@@ -1,0 +1,6 @@
+[submodule "third_party/SafeSpec"]
+	path = third_party/SafeSpec
+	url = https://github.com/HaotianXu1/SafeSpec.git
+[submodule "third_party/kev"]
+	path = third_party/kev
+	url = https://github.com/jaredpalmer/kev.git

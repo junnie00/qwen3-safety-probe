@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/HaotianXu1/SafeSpec",
+  "commit": "f2df9e464be5ef75b205f7a9f7e9628bd1109eab",
+  "checkout": "third_party/SafeSpec",
+  "local_modifications": false,
+  "reused_module": "safety_head/safety_head.py"
+}

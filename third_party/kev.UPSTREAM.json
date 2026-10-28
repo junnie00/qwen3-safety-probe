@@ -1,0 +1,36 @@
+{
+  "repository": "https://github.com/jaredpalmer/kev.git",
+  "commit": "2074cc44256200bb37540103fa4572901faa10f3",
+  "checkout": "third_party/kev",
+  "download": "shallow partial clone with sparse checkout",
+  "included_directories": [
+    ".agents",
+    ".github",
+    "docs",
+    "experiments",
+    "kev",
+    "playground",
+    "scripts",
+    "skills",
+    "space",
+    "tests",
+    "tools"
+  ],
+  "omitted_large_directories": [
+    "runs",
+    "evals"
+  ],
+  "local_modifications": false,
+  "reviewed_entry_points": [
+    "kev/model.py",
+    "kev/train.py",
+    "kev/api.py",
+    "kev/serve.py",
+    "kev/shared_prefix.py",
+    "kev/calibrate.py",
+    "kev/suite.py",
+    "kev/jev.py",
+    "tests/test_model.py",
+    "tests/test_unit.py"
+  ]
+}
