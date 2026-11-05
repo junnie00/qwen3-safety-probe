@@ -1,0 +1,8 @@
+# Linux x86_64 NVIDIA GPU environment (including WSL2).
+# Requires a driver compatible with CUDA 12.6; no system CUDA toolkit needed.
+# Install: python -m pip install -r requirements-gpu.txt
+# With uv, explicitly select the matching backend:
+# uv pip install --python .venv/bin/python --torch-backend cu126 -r requirements-gpu.txt
+--extra-index-url https://download.pytorch.org/whl/cu126
+-r requirements-text-probe.txt
+torch==2.9.1+cu126
