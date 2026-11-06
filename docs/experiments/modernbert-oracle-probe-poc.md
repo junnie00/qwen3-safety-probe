@@ -1,6 +1,8 @@
 # ModernBERT 冻结表示＋双视图分类头 PoC
 
-状态：正式v2实验及产物核验已完成，87项回归测试通过。结果见 `artifacts/modernbert_oracle_poc/run-20261104-v2/report.md`。分支：`cx`；未提交、未推送、未合并 `main`。
+最新状态（2026-11-06）：S3 实验及核验已完成，用户选择以 S3 为当前主要研究方案，S2 保留为低误报对照。先读[面向主分支读者的阶段报告](modernbert-experiment-summary.md)，再按需查看本文的完整演进记录；第1—7节为初始三分类协议，第8—12节记录后续二分类、预测证据及发布前审查实验，不应把初始约束当成当前方案。
+
+最近实验已有119项回归测试通过，S3的606个epoch检查点重放通过。分支为 `cx`；早期工作已本地提交 `272f7a1`，后续实验及本次报告尚未追加提交，未推送、未合并 `main`。
 
 ## 1. 目标与已确认范围
 
@@ -262,3 +264,68 @@ python3 scripts/run_probe_limited.py \
 - 更低验证BCE不保证低误报工作点召回更高：base本轮比旧早停结果的召回低。没有事后按test更换选点标准，后续需单独研究优化稳定性与选点指标。
 - 正式特征提取＋全轨迹头训练评估进程合计约6分33秒；峰值内存约2.91GiB，平均CPU各阶段不足1逻辑核，限额与资源事件均已核验。未提交、未推送、未修改主分支。
 - 每个头的 `trajectory.csv/jsonl/svg`、`validation_scores.npy`、`checkpoints/epoch-000..100.pt`、`best.pt`、`final.pt`全部保留。训练loss下降不等于泛化继续提升；下一步可另设固定学习率衰减/延长训练窗口的对照，本轮未自动追加。
+
+## 10. 预测攻击证据、漏检模式与独立意图告警（已完成）
+
+上述已验证代码与仓库配置已按用户要求提交至本地cx，commit `272f7a1`；未推送，main未动。以下新增工作在该commit之后完成，尚未再次提交。
+
+### 检测头定义
+
+用户确认的目标是：输入原用户任务＋工具材料，判断是否包含试图越权改变原任务的指令。攻击构造span为正例，常规工具材料为负例；攻击最终被抵抗的case仍是攻击存在正例。当前以数据构造标签为监督代理，不声称完成全面人工语义复核。
+
+`baseline/evidence_detector.py`使用冻结ModernBERT-base表示＋线性头。工具材料只按空行及192token窗口/96stride产生候选，gold不参与候选边界或推理。训练100轮、三个seed，按验证case BCE选点；在验证clean case误报≤5%约束下校准存在性阈值。只输出预测最高分原文段落，不进行攻击类型路由。
+
+`baseline/evidence_pipeline.py`将预测片段接入既有冻结large E头，G保持不变。不按gold启用分支，不回填缺失证据；clean误触发分支和错误片段均计入评估。精确token哈希相同的输入可复用旧确定性特征缓存，不改变预测文本。
+
+报告：`artifacts/modernbert_oracle_poc/predicted-evidence-20261105/report.md`。检测器攻击存在召回87.60%、clean case误报6.15%；接入预测证据的A召回47.39%、A误报3.14%，对照oracle为48.04%/1.57%。105项回归测试、300个检测器epoch检查点与全部下游预测核验通过；每轮轨迹与权重保留。检测器最佳轮次99/100/93，尚不能确认已饱和。
+
+### 哪些A容易漏检
+
+`scripts/analyze_attack_recall.py`分析既有large oracle M2的102个真实A（102个case、56个来源组）。明确LLM处理指令/marker召回64.8%，夹带额外内容64.7%，改做无关任务18.2%，业务流程伪装插入凭证13.9%，改变语言/emoji的9个A全部漏检。代码领域17个A平均召回5.9%。部分漏检中草稿仍正常、主模型才突然执行注入，属于观察信息不足，不能全归因于不认识攻击意图。
+
+完整分组与示例：`artifacts/modernbert_oracle_poc/attack-recall-analysis-20261105/report.md`。机制归并是事后分析，不作为新增训练标签；小组样本量与领域/模板混杂限制因果解释。所有945个攻击case都在tool材料末尾追加攻击，当前定位任务偏容易，不能外推任意位置或正常引用攻击的困难负例。
+
+### 是否把意图检测单独OR到A分支
+
+`scripts/evaluate_intent_parallel.py`进行了额外CPU诊断。直接OR使A召回47.39%→95.75%，但相对A标签误报3.14%→50.72%；保持已有行为工作点、再以验证整体A误报≤5%校准第三分支时，三个seed均选择关闭额外OR，无增量召回。
+
+因此应保留`attack_present`和`behavior_risk`两个独立信号。意图阳性可以触发隔离/复核，但不自动等同于主模型中招。若业务目标是所有真实攻击都拦截，应按攻击存在标签而非A标签评估策略；上述50.72%不是正常工具材料的检测误报率。
+
+## 11. 主模型文本输入消融（已完成并核验）
+
+用户授权同时尝试三组：S0保持当前结构；S1两个行为头都增加最近256token的历史主模型输出；S2在S1上再加入当前待发布主模型输出块。
+
+**时间边界变更：**第2节对当前target的禁用继续适用于S0/S1。S2是用户明确授权的“生成后、发布前审查”实验，允许输入当前`supervision.target_output`，不允许输入标签、判定说明、完整未来输出或参考答案。不能把S2增益解释为提前预测提升。线上仍需实现发布/工具执行前缓冲，本轮不修改在线解码与外部副作用控制。
+
+协议预先固定于 `artifacts/modernbert_oracle_poc/target-text-ablation-20261106/protocol.json`：
+
+- 主结果使用冻结意图检测器预测的证据及启用mask；两层模型、source group划分、7071条有效块不变。
+- 历史仅取`history_pairs`中按顺序拼接的target文本，再取最近256个large tokenizer token，不读取历史draft或接受统计。历史快照的16196条记录已经核实等于初始历史加严格此前各块target。
+- 视图实现 `baseline/target_text_features.py`。S1在序列化函数级不访问supervision；S2只额外读取target_output。保留v2 CLS/SEP和mean pooling，用TARGET_HISTORY/TARGET_CURRENT普通文本分隔符，总预算4096。
+- S0复用已有large全100轮的G/E头及预测证据结果。S1/S2各训练G/E×三个seed，共12个新线性头；骨干冻结FP32，训练参数与S0完全一致，全部100epoch并保留每轮轨迹及checkpoint。
+- 为不引入第二个训练变量，E仍按原方案使用oracle攻击子集训练与选点，实际主评估时统一使用预测证据。另报告oracle诊断，不当作可部署结果。
+- 检查点只按验证BCE选择；阈值仅在val整体A误报≤5%时校准，test不选epoch。S0/S1/S2使用配对来源组bootstrap。
+- 训练/评估实现 `baseline/target_text_ablation.py`，复核 `scripts/verify_target_text_ablation.py`；输入时间隔离、gold-free预测证据、映射与bootstrap测试已通过，含原回归共113项通过。
+- 产物根目录 `artifacts/modernbert_oracle_poc/target-text-ablation-20261106/`，新特征位于features/，头和完整轨迹位于S1/、S2/。资源继续按整个进程树2核/6GiB、swap0限制。
+
+结果已核验：S0/S1/S2的A召回均值分别47.39%/36.27%/52.94%，实际A误报3.14%/2.68%/1.80%，精确率46.13%/43.55%/63.27%。S1三个seed召回均下降；S2相对S0增益主要来自一个seed，另外两个seed的召回差bootstrap区间包含零，不能夸大稳健性。
+
+按攻击方式，S2的marker处理指令召回64.8%→76.7%，业务理由插入凭证13.9%→33.3%，语言/emoji0%→14.8%；但答案夹带类64.7%→39.2%，任务替换仍12.1%。这不是所有类型同时改善。S2必须解释为待发布文本审查，不能当作提前预测能力提升。
+
+S1证据头最佳epoch96/83/99，S2为86/83/99，仍不能确认100轮已充分收敛。已保存并重放1212个epoch检查点，重新构建所有输入验证token哈希/映射，S0与意图检测输出不变。12份有效曲线保存为 `trajectory.checked.svg`：原SVG标题未转义小于号，已由 `scripts/render_checked_trajectories.py` 仅重绘展示层，不改变权重/特征/数值轨迹；请使用checked曲线。
+
+提特征与训练评估进程合计约14分钟，内存峰值分别约3.38GiB和0.56GiB，平均CPU0.73核和1.34核，未触发内存soft/hard/OOM事件。完整结论及限制见该运行的report.md与verification.json；未追加Git提交。
+
+## 12. S3：仅当前待发布输出，不增加模型历史（已完成并核验）
+
+用户要求继续隔离历史字段的影响。S3在原G/E输入后仅追加TARGET_CURRENT与当前target_output，不访问history_pairs、不增加TARGET_HISTORY。原先G聊天上下文里的assistant消息保持不动，避免同时改变原有聊天输入。S2/S3都属于发布前审查，不能解释为提前预测。
+
+协议预先固定于 `artifacts/modernbert_oracle_poc/current-target-only-20261106/protocol.json`。冻结相同large骨干、FP32、mean pooling、意图检测与证据/启用mask、原样本与划分。训练规则保持100epoch、3seed、AdamW与原类别权重、最低验证BCE选点；E仍按原oracle子集训练、预测证据评估。S0/S2原权重、结果与阈值直接复用，主比较为S3对S2。
+
+实现 `baseline/current_target_only.py`；重放核验 `scripts/verify_current_target_only.py`。119项回归测试通过，包含禁止读取history_pairs、修改历史不影响输入、当前输出白名单、预测证据不回填以及有效SVG转义。产物目录 `artifacts/modernbert_oracle_poc/current-target-only-20261106/`，features为新特征，S3为六个头的完整轨迹/检查点；曲线使用trajectory.checked.svg。资源保持整个进程树2核/6GiB、swap0，各阶段串行。
+
+已完成606个epoch检查点及9组新增测试配置重放核验，S0/S2原结果保持不变。S3预测证据主结果：A召回61.11%、A误报3.35%、A精确率51.26%；S2为52.94%/1.80%/63.27%。去掉额外历史提高召回，但不是全面占优，误报也上升。S3三seed召回59.80%/61.76%/61.76%，相对S2的第一个seed召回增益区间跨零。
+
+攻击分组：S3的任务替换召回39.4%、业务凭证52.8%、答案夹带60.8%，高于S2；语言/emoji仍14.8%，代码领域17个A全部漏检。不能用总体增益掩盖领域退化。证据头最佳epoch96/89/99，仍不能确认100轮已饱和。
+
+正式特征提取与训练评估约6分04秒，内存峰值约3.56GiB，平均CPU各阶段不足1核，未触发内存soft/hard/OOM。详见该运行report.md和verification.json；未追加Git提交。
